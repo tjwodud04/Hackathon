@@ -1,5 +1,5 @@
-from NaverRealEstateHavester.nre.classes import *
-from NaverRealEstateHavester.nre.util import *
+from .NaverRealEstateHavester.nre.classes import *
+from .NaverRealEstateHavester.nre.util import *
 import requests
 import pandas as pd
 import urllib.parse
