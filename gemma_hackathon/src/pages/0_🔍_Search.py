@@ -2,131 +2,98 @@ import streamlit as st
 import pandas as pd
 from dotenv import load_dotenv
 import os
-from st_aggrid import AgGrid, GridOptionsBuilder
-import time
-from llm import run
+import sys
+from pathlib import Path
+
+# 프로젝트 루트 디렉토리 설정
+current_dir = Path(__file__).resolve().parent
+project_root = current_dir.parent.parent
+
+# 프로젝트 루트를 sys.path에 추가
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from pandas_ai import run
 
 load_dotenv()
 
 # Streamlit configuration
-st.set_page_config(page_title="Real Estate Search", layout="centered")
+st.set_page_config(page_title="부동산 검색", layout="centered")
 
-
-# Function to load the real estate database
-def load_database():
-    csv_path = '../Crawling/강남역_real_estate_data.csv'
-    return pd.read_csv(csv_path)
-
-
-# Function to truncate text
-def truncate_text(text, max_words=50):
-    if text is None or text == "":
-        return "N/A"
-    words = str(text).split()
-    if len(words) > max_words:
-        return " ".join(words[:max_words]) + "..."
-    return text
-
-
-def load_table(all_data):
-    display_df = pd.DataFrame(all_data)
-    gb = GridOptionsBuilder.from_dataframe(display_df)
-
-    # Configure columns
-    gb.configure_default_column(
-        wrapText=True,
-        autoHeight=True,
-        maxWidth=500,
-        groupable=True,
-        cellStyle={"white-space": "pre-wrap"},
-        sortable=True
-    )
-
-    gb.configure_pagination(paginationAutoPageSize=True)
-    gb.configure_side_bar(filters_panel=True, columns_panel=True)
-
-    gridOptions = gb.build()
-
-    AgGrid(
-        display_df,
-        gridOptions=gridOptions,
-        fit_columns_on_grid_load=False,
-        enable_enterprise_modules=True,
-        height=500,
-        theme="streamlit",
-        key="ag_grid_" + str(time.time()),
-    )
+# Available locations and predefined queries
+LOCATIONS = ["강남역", "서울역", "한강공원", "홍대입구역", "이태원역"]
+PREDEFINED_QUERIES = {
+    "가격 관련": [
+        "3억 이하의 매물을 찾아줘",
+        "전세가율이 가장 높은 매물 3개는?",
+        "평당 가격이 가장 저렴한 매물은?"
+    ],
+    "면적/구조 관련": [
+        "남향이면서 면적이 넓은 매물 추천",
+        "전용면적 20평 이상의 매물 목록",
+        "주차장이 있는 매물만 보여줘"
+    ],
+    "건물 상태 관련": [
+        "2010년 이후 지어진 신축 건물만",
+        "리모델링이 완료된 매물 찾기",
+        "관리상태가 좋은 매물 추천"
+    ]
+}
 
 
 def main():
-    st.title("🏢 부동산 검색")
+    st.title(":office: 부동산 자연어 검색")
 
-    # Load the data
-    df = load_database()
+    # Location selector
+    selected_location = st.selectbox(
+        "검색할 위치를 선택하세요",
+        LOCATIONS
+    )
 
-    # Filters
-    col1, col2, col3 = st.columns(3)
+    # Query input method selection
+    query_method = st.radio(
+        "검색 방식을 선택하세요",
+        ["직접 입력", "미리 정의된 질문 선택"]
+    )
 
-    with col1:
-        property_type = st.selectbox("부동산 유형", ["전체"] + list(df['Type'].unique()))
+    search_query = ""
 
-    with col2:
-        min_area = st.number_input("최소 면적", min_value=float(df['representativeArea'].min()))
+    if query_method == "직접 입력":
+        search_query = st.text_input(
+            "질문을 입력하세요",
+            placeholder="예: 남향이면서 면적이 넓은 아파트를 추천해줘"
+        )
+    else:
+        # Category selection
+        category = st.selectbox(
+            "카테고리를 선택하세요",
+            list(PREDEFINED_QUERIES.keys())
+        )
 
-    with col3:
-        max_area = st.number_input("최대 면적", min_value=float(df['representativeArea'].min()),
-                                   value=float(df['representativeArea'].max()))
+        # Query selection from category
+        if category:
+            search_query = st.selectbox(
+                "질문을 선택하세요",
+                PREDEFINED_QUERIES[category]
+            )
 
-    # Search using LLM
-    search_query = st.text_input("검색어를 입력하세요", "")
+    if st.button("검색") and search_query:
+        with st.spinner(f"{selected_location} 데이터 분석 중..."):
+            try:
+                # Add location context to the query
+                contextualized_query = f"{selected_location}의 {search_query}"
 
-    if st.button("검색"):
-        with st.spinner("검색 중..."):
-            if search_query:
-                try:
-                    # Use the LLM for search
-                    llm_results = run(search_query, "openai", df)
-                    st.success("검색이 완료되었습니다.")
-                    st.write("LLM 검색 결과:", llm_results)
-                except Exception as e:
-                    st.error(f"검색 중 오류가 발생했습니다: {str(e)}")
+                # Call the run function from pandas_ai
+                result = run(contextualized_query, "openai", location=selected_location)
 
-    # Filter the data
-    filtered_data = df.copy()
-    if property_type != "전체":
-        filtered_data = filtered_data[filtered_data['Type'] == property_type]
-    filtered_data = filtered_data[
-        (filtered_data['representativeArea'] >= min_area) &
-        (filtered_data['representativeArea'] <= max_area)
-        ]
+                # Display the result
+                st.success("검색이 완료되었습니다.")
+                st.write("분석 결과:")
+                st.write(result)
 
-    # Display results
-    st.subheader("검색 결과")
-
-    # Prepare display data
-    display_data = []
-    for _, row in filtered_data.iterrows():
-        display_data.append({
-            "이름": row['Name'],
-            "유형": row['Type'],
-            "건축일자": row['Build'],
-            "방향": row['Dir'],
-            "면적": row['representativeArea'],
-            "용적률": row['floorAreaRatio'],
-            "매매가(중간값)": row['medianDeal'],
-            "전세가(중간값)": row['medianLease'],
-            "위도": row['Lat'],
-            "경도": row['Lon'],
-            "지하철": row['METRO'],
-            "주차": row['PARKING'],
-            "편의점": row['CONVENIENCE']
-        })
-
-    load_table(display_data)
-
-    # Optional: Add a map
-    if st.checkbox("지도로 보기"):
-        st.map(filtered_data[['Lat', 'Lon']])
+            except Exception as e:
+                st.error(f"검색 중 오류가 발생했습니다: {str(e)}")
+                st.write("상세 에러:", e)
 
 
 if __name__ == "__main__":
