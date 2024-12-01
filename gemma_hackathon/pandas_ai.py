@@ -8,11 +8,15 @@ from pandasai.llm import OpenAI
 # from pandasai.llm.openai import OpenAI
 from dotenv import load_dotenv
 import os
+from data_gathering.test_code.test import NaverRECrawler
 
 load_dotenv()
 
-csv_path = "/Users/jeonmingyu/hackathon/IBM_Watson_Assistant/IBM_Hackathon/Crawling/강남역 오피스텔_real_estate_data.xlsx"
+
+csv_path = "/Users/jeonmingyu/hackathon/IBM_Watson_Assistant/IBM_Hackathon/gemma_hackathon/data_gathering/data/강남역_real_estate_data.xlsx"
 csv = pd.read_excel(csv_path)
+
+
 # check
 """
 >>> csv.columns
@@ -58,8 +62,11 @@ def run(input, model, data=csv):
 
 
 if __name__ == "__main__":
-    test_model = "openai"
-    test_input = "give only five name of apt where representativeArea is larger then 50 odered by price"  # 단위 등 데이터 후처리 필요.
-    print(f"{test_input}")
-
-    print(run(test_input, test_model))
+    crawler = NaverRECrawler()
+    location = input("검색할 위치를 입력하세요 (예: 강남역): ")
+    df = crawler.search_location(location)
+    while True:
+        test_model = "openai"
+        test_input = input("원하는 정보 입력 : ")  # 단위 등 데이터 후처리 필요.
+        print(f"{test_input}")
+        print(run(test_input, test_model, data=df))
