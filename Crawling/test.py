@@ -3,45 +3,37 @@ from NaverRealEstateHavester.nre.util import *
 import requests
 import pandas as pd
 import urllib.parse
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 class NaverRECrawler:
     def __init__(self):
-        self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-
-    def get_coordinates(self, query):
-        encoded_query = urllib.parse.quote(query)
-        naver_map_url = f"https://map.naver.com/v5/search/{encoded_query}"
-        search_url = f"https://map.naver.com/v5/api/search?caller=pcweb&query={encoded_query}&type=all&page=1&displayCount=20&isPlaceRecommendationReplace=true&lang=ko"
-
-        self.headers["Referer"] = naver_map_url
-
-        try:
-            response = requests.get(search_url, headers=self.headers)
-            if response.status_code == 200:
-                data = response.json()
-                if (
-                    "result" in data
-                    and "place" in data["result"]
-                    and "list" in data["result"]["place"]
-                ):
-                    first_result = data["result"]["place"]["list"][0]
-                    return NLocation(float(first_result["y"]), float(first_result["x"]))
-        except Exception as e:
-            print(f"API Error: {str(e)}")
-
-        # 실패 시 하드코딩된 좌표 사용
-        default_coordinates = {
+        self.default_coordinates = {
             "강남역": (37.4979462, 127.0276206),
             "역삼역": (37.5006, 127.0368),
             "선릉역": (37.5044, 127.0505),
         }
+        self.api_key = os.getenv("GOOGLE_API_KEY")
 
-        if query in default_coordinates:
-            lat, lon = default_coordinates[query]
-            return NLocation(lat, lon)
+    def get_coordinates(self, query):
+        encoded_query = urllib.parse.quote(query)
+        search_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={encoded_query}&key={self.api_key}"
+
+        try:
+            response = requests.get(search_url)
+            if response.status_code == 200:
+                data = response.json()
+                if data["status"] == "OK" and data["results"]:
+                    location = data["results"][0]["geometry"]["location"]
+                    return NLocation(float(location["lat"]), float(location["lng"]))
+        except Exception as e:
+            print(f"API Error: {str(e)}")
+
+        if query in self.default_coordinates:
+            return NLocation(*self.default_coordinates[query])
 
         raise Exception(f"Location not found for: {query}")
 
@@ -77,13 +69,11 @@ class NaverRECrawler:
 
 if __name__ == "__main__":
     crawler = NaverRECrawler()
-
     try:
         location = input("검색할 위치를 입력하세요 (예: 강남역): ")
         df = crawler.search_location(location)
 
         print(f"\n총 {len(df)}개의 매물이 검색되었습니다.")
-        print("\n=== 매물 정보 ===")
         columns_to_show = [
             "Name",
             "Type",
@@ -94,10 +84,8 @@ if __name__ == "__main__":
         ]
         print(df[columns_to_show].head())
 
-        # 파일로 저장
         output_file = f"{location}_real_estate_data.xlsx"
         df.to_excel(output_file, index=False)
         print(f"\n데이터가 {output_file}로 저장되었습니다.")
-
     except Exception as e:
         print(f"Error: {str(e)}")
