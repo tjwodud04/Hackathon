@@ -1,203 +1,154 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="AIRA - Artificial Intelligence Research Assistant",
-    page_icon="🧠",
+    page_title="부동산 AI 검색 서비스",
+    page_icon="🏢",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# Sidebar navigation
-st.sidebar.title("AIRA Demo")
+# 사이드바 네비게이션
+st.sidebar.title("부동산 AI 검색")
 demo_section = st.sidebar.radio(
-    "Navigate to",
+    "메뉴",
     [
-        "Project Overview",
-        "Key Features",
-        "Tech Stack",
-        "Engineering Design",
-        "Problem-Solving Approaches",
-        "User Stories",
-        "Competitive Advantage",
-        "Call to Action",
+        "서비스 소개",
+        "주요 기능",
+        "기술 스택",
+        "시스템 설계",
+        "문제 해결 접근",
+        "사용자 후기",
+        "서비스 장점",
+        "문의하기",
     ],
 )
 
-# Main content
-st.title("AIRA: Artificial Intelligence Research Assistant")
-st.subheader("Revolutionizing Academic Research with AI")
+# 메인 컨텐츠
+st.title("AI 기반 부동산 검색 서비스")
+st.subheader("인공지능으로 스마트한 부동산 검색을")
 
-if demo_section == "Project Overview":
-    st.header("Project Overview")
+if demo_section == "서비스 소개":
+    st.header("서비스 소개")
     st.write(
         """
-    AIRA is an advanced AI-powered platform designed to transform the way researchers interact with academic literature. 
-    By leveraging cutting-edge natural language processing and machine learning techniques, AIRA addresses the 
-    challenges of information overload and inefficient literature review processes in academic research.
+    AI 기반 부동산 검색 서비스는 최신 자연어 처리와 머신러닝 기술을 활용하여 
+    부동산 검색 경험을 혁신적으로 개선합니다.
 
-    Our vision is to empower researchers to discover, analyze, and synthesize scientific knowledge more effectively, 
-    ultimately accelerating the pace of scientific progress.
+    복잡한 부동산 정보를 쉽게 검색하고 분석할 수 있도록 도와주며,
+    사용자의 요구사항에 맞는 최적의 매물을 추천해드립니다.
     """
     )
 
-    st.image("./frontend/src/assets/images/aira_overview.png", caption="AIRA Overview")
+    st.image("assets/overview.png", caption="서비스 개요")
 
-elif demo_section == "Key Features":
-    st.header("Key Features")
+elif demo_section == "주요 기능":
+    st.header("주요 기능")
 
     features = {
-        "Smart Search": "AI-powered search engine that understands context and semantic meaning",
-        "Interactive Literature Database": "Dynamic, filterable table of research papers with key metadata",
-        "Automated Paper Summaries": "AI-generated concise summaries of research papers",
-        "Knowledge Graph Visualization": "Interactive graph showing connections between papers and concepts",
-        "Chatbot Research Assistant": "AI-powered chatbot for answering research-related questions",
-        "PDF Analysis and Upload": "Automatic extraction and analysis of content from uploaded PDFs",
+        "스마트 검색": "자연어 기반 검색으로 원하는 조건의 매물을 쉽게 찾기",
+        "매물 데이터베이스": "실시간 업데이트되는 매물 정보와 상세 필터링",
+        "시세 분석": "지역별, 유형별 시세 동향 분석 및 예측",
+        "위치 기반 서비스": "교통, 편의시설 등 주변 인프라 정보 제공",
+        "AI 챗봇 상담": "24시간 가능한 AI 기반 부동산 상담 서비스",
+        "매물 비교 분석": "선택한 매물들의 상세 비교 분석 기능",
     }
 
     for feature, description in features.items():
         st.subheader(feature)
         st.write(description)
 
-    st.write(
-        """
-    Each feature of AIRA is designed to address specific pain points in the research process:
-    - Smart Search saves time by quickly identifying the most relevant papers.
-    - The Interactive Database provides a comprehensive overview of the literature landscape.
-    - Automated Summaries allow researchers to quickly grasp the key points of numerous papers.
-    - Knowledge Graphs help in identifying research gaps and potential collaborations.
-    - The Chatbot Assistant offers instant answers to research queries, enhancing productivity.
-    - PDF Analysis streamlines the process of incorporating new papers into the research workflow.
-    """
-    )
-
-elif demo_section == "Tech Stack":
-    st.header("Tech Stack")
-
-    st.image("./frontend/src/assets/images/tech_stack.png", caption="AIRA Tech Stack")
+elif demo_section == "기술 스택":
+    st.header("기술 스택")
 
     st.write(
         """
-    Our technology stack is carefully chosen to provide a robust, scalable, and efficient solution:
+    최신 기술을 활용한 안정적이고 효율적인 서비스 제공:
 
-    1. Python: The core language for our backend, chosen for its rich ecosystem of scientific and ML libraries.
-    2. Streamlit: Enables rapid development of interactive web applications with Python.
-    3. OpenAI API: Powers our advanced natural language processing capabilities.
-    4. MongoDB: Provides a flexible, document-based database for storing complex research data.
-    5. Neo4j: Graph database used for creating and querying knowledge graphs.
-    6. LangChain: Enhances our ability to work with large language models and create AI-powered applications.
-    7. PyPDF2: Facilitates PDF parsing and text extraction.
-    8. PubMed API: Allows us to access a vast database of biomedical literature.
-
-    This stack combines the power of AI, the flexibility of modern databases, and the efficiency of Python 
-    to create a comprehensive research assistant platform.
+    1. Python: 백엔드 개발 및 데이터 처리
+    2. Streamlit: 웹 인터페이스 구현
+    3. OpenAI API: 자연어 처리 및 AI 챗봇
+    4. MongoDB: 부동산 데이터 저장 및 관리
+    5. Pandas: 데이터 분석 및 처리
+    6. GeoPy: 위치 기반 서비스 구현
+    7. Plotly: 데이터 시각화
+    8. 공공데이터 API: 부동산 실거래가 정보 연동
     """
     )
 
-elif demo_section == "Engineering Design":
-    st.header("Engineering Design")
-    st.image("./frontend/src/assets/images/rag_retrieval.png")
+elif demo_section == "시스템 설계":
+    st.header("시스템 설계")
 
-    st.subheader("1. Multithreading")
+    st.subheader("1. 데이터 수집 시스템")
     st.write(
         """
-    We utilize async functions to perform multiple tasks simultaneously:
-    - Generating paper summaries
-    - Uploading to the database
-    - Creating knowledge graphs
-
-    This approach significantly reduces processing time and enhances user experience by allowing multiple 
-    operations to occur in parallel.
+    - 실시간 매물 정보 수집
+    - 공공데이터 연동
+    - 사용자 피드백 데이터 수집
     """
     )
 
-    st.subheader("2. Microservices Architecture")
+    st.subheader("2. AI 분석 엔진")
     st.write(
         """
-    Our application is built on a microservices architecture, which:
-    - Improves scalability by allowing independent scaling of different components
-    - Enhances maintainability through modular design
-    - Enables easier updates and feature additions without disrupting the entire system
+    - 자연어 처리 기반 검색 시스템
+    - 추천 알고리즘
+    - 가격 예측 모델
     """
     )
 
-    st.subheader("3. Modularization")
+    st.subheader("3. 사용자 인터페이스")
     st.write(
         """
-    We've adopted a highly modular approach in our codebase:
-    - Enhances code reusability across different parts of the application
-    - Simplifies development and testing processes
-    - Allows for easier collaboration among team members working on different features
+    - 반응형 웹 디자인
+    - 직관적인 검색 필터
+    - 실시간 업데이트
     """
     )
 
-elif demo_section == "Problem-Solving Approaches":
-    st.header("Problem-Solving Approaches")
+elif demo_section == "문제 해결 접근":
+    st.header("문제 해결 접근")
 
-    st.subheader("Efficient Collaboration")
+    st.subheader("데이터 품질 관리")
     st.write(
         """
-    - Separate repositories for backend and frontend components
-    - Utilization of Git for version control:
-      - Feature branching for parallel development
-      - Pull requests and code reviews for quality assurance
-      - Continuous integration to catch issues early
+    - 실시간 데이터 검증
+    - 중복 매물 필터링
+    - 가격 이상치 탐지
     """
     )
 
-    st.subheader("Agile Development")
+    st.subheader("사용자 경험 최적화")
     st.write(
         """
-    - Adopted a sprint-based approach with short, intensive development cycles
-    - Team meetings every 3 hours to:
-      - Share progress
-      - Identify and resolve blockers quickly
-      - Adjust priorities based on project needs
-    - This approach allowed us to maintain high velocity while staying flexible to changing requirements
+    - 검색 결과 정확도 향상
+    - 응답 시간 최적화
+    - 직관적인 UI/UX 설계
     """
     )
 
-    st.subheader("Leveraging Large Language Models")
-    st.write(
-        """
-    We integrated advanced Large Language Models (LLMs) from OpenAI and Anthropic into our development process:
-
-    - Code Assistance: Used LLMs to generate code snippets, debug issues, and optimize algorithms.
-    - Documentation: Leveraged AI to draft and refine documentation, ensuring clarity and comprehensiveness.
-    - Ideation: Employed LLMs for brainstorming sessions, generating innovative feature ideas and solution approaches.
-    - Problem-solving: Utilized AI to analyze complex problems and suggest potential solutions or approaches.
-    - Code Review: Integrated LLMs into our code review process to catch potential issues and suggest improvements.
-
-    This integration of AI tools significantly enhanced our development speed and code quality, allowing us to tackle complex challenges more effectively and innovate rapidly.
-    """
-    )
-
-elif demo_section == "User Stories":
-    st.header("User Stories")
+elif demo_section == "사용자 후기":
+    st.header("사용자 후기")
 
     stories = [
         {
-            "title": "The Time-Pressed PhD Student",
+            "title": "첫 내 집 마련 성공",
             "story": """
-            Sarah, a PhD student in neuroscience, needs to conduct a comprehensive literature review for her thesis. 
-            With AIRA, she quickly generates summaries of hundreds of papers, identifying key trends and gaps in her 
-            field. The knowledge graph feature helps her discover unexpected connections between different research areas, 
-            inspiring a novel approach for her thesis.
+            AI 검색 서비스를 통해 제가 원하는 조건에 맞는 아파트를 쉽게 찾을 수 있었어요.
+            주변 시세와 비교해서 합리적인 가격에 구매할 수 있었습니다.
             """,
         },
         {
-            "title": "The Interdisciplinary Researcher",
+            "title": "투자자의 선택",
             "story": """
-            Dr. Lee is working on a project that spans both computer science and biology. He uses AIRA's smart search 
-            to find papers that bridge these fields, which traditional search engines often miss. The chatbot assists 
-            him in understanding unfamiliar terminology, enabling him to confidently explore new research territories.
+            시세 분석과 예측 기능이 투자 결정에 큰 도움이 되었습니다.
+            여러 지역의 매물을 한눈에 비교할 수 있어서 좋았어요.
             """,
         },
         {
-            "title": "The Research Team Leader",
+            "title": "부동산 중개인의 필수 도구",
             "story": """
-            Professor Garcia leads a large research team. She uses AIRA to keep track of the latest developments in 
-            their field, assigning relevant papers to team members based on AIRA's summaries. The interactive database 
-            helps her team collaboratively build a shared knowledge base, enhancing their collective research output.
+            AI 챗봇이 기본적인 문의를 처리해주어 업무 효율이 크게 향상되었습니다.
+            매물 관리도 훨씬 수월해졌어요.
             """,
         },
     ]
@@ -206,79 +157,44 @@ elif demo_section == "User Stories":
         st.subheader(story["title"])
         st.write(story["story"])
 
-elif demo_section == "Competitive Advantage":
-    st.header("Competitive Advantage")
+elif demo_section == "서비스 장점":
+    st.header("서비스 장점")
 
     st.write(
         """
-    While there are other research assistance tools available, AIRA stands out in several key areas:
+    1. 정확한 정보: 실시간 업데이트되는 검증된 매물 정보
 
-    1. Comprehensive Solution: Unlike tools that focus on a single aspect (e.g., just paper search or summarization), 
-       AIRA provides an end-to-end solution for the entire research workflow.
+    2. 스마트 검색: AI 기반 맞춤형 매물 추천
 
-    2. Advanced AI Integration: Our use of state-of-the-art language models allows for more nuanced understanding 
-       and generation of research content compared to keyword-based systems.
+    3. 편리한 인터페이스: 누구나 쉽게 사용할 수 있는 직관적인 디자인
 
-    3. Interactive Knowledge Graphs: While some competitors offer basic citation networks, our knowledge graphs 
-       provide deeper insights into concept relationships across papers.
+    4. 상세 분석: 지역별 시세 분석과 미래 가치 예측
 
-    4. Customizability: AIRA's modular design allows for easy customization to specific research fields or institutional needs.
-
-    5. User-Centric Design: Developed based on extensive feedback from actual researchers, ensuring it addresses 
-       real-world pain points in the research process.
+    5. 통합 정보: 부동산 정보와 주변 인프라 정보를 한번에 확인
     """
     )
 
-elif demo_section == "Future Roadmap":
-    st.header("Future Roadmap")
-
-    roadmap = {
-        "Q4 2023": [
-            "Integration with additional academic databases (e.g., ArXiv, IEEE Xplore)",
-            "Enhanced collaboration features for research teams",
-        ],
-        "Q1 2024": [
-            "Implementation of a recommendation system for related papers and potential collaborators",
-            "Development of a mobile app for on-the-go research assistance",
-        ],
-        "Q2 2024": [
-            "Integration of a citation management system",
-            "Addition of data visualization tools for quantitative research papers",
-        ],
-        "Q3 2024": [
-            "Implementation of multi-language support for global research communities",
-            "Development of an API for third-party integrations",
-        ],
-    }
-
-    for quarter, features in roadmap.items():
-        st.subheader(quarter)
-        for feature in features:
-            st.write(f"- {feature}")
-
-
-elif demo_section == "Call to Action":
-    st.header("Join the Research Revolution")
+elif demo_section == "문의하기":
+    st.header("서비스 문의")
 
     st.write(
         """
-    AIRA represents the future of academic research assistance. By supporting AIRA, you're not just backing a product; 
-    you're investing in the acceleration of scientific progress and innovation.
+    더 나은 부동산 거래를 위한 첫 걸음을 시작하세요.
 
-    Here's how you can get involved:
+    문의 방법:
 
-    1. 🚀 Early Adopter Program: Be among the first to experience the full power of AIRA and shape its future development.
-    2. 💼 Partnership Opportunities: Explore how AIRA can be customized for your institution or research organization.
-    3. 💡 Feedback and Collaboration: Share your insights to help us refine and expand AIRA's capabilities.
+    1. 📱 전화 문의: 02-XXX-XXXX
+    2. 📧 이메일: contact@realestate.ai
+    3. 💬 카카오톡: @부동산AI
 
-    Together, we can transform the landscape of academic research, making it more efficient, insightful, and impactful than ever before.
+    부동산 거래의 새로운 패러다임을 경험해보세요.
     """
     )
 
-    st.button("Request Early Access")
-    st.button("Contact Us for Partnerships")
+    st.button("문의하기")
+    st.button("서비스 신청")
 
-# Footer
+# 푸터
 st.sidebar.markdown("---")
-st.sidebar.info("AIRA - Empowering researchers with AI")
-st.sidebar.text("© 2024 AIRA Team")
+st.sidebar.info("부동산 AI 검색 서비스 - 더 스마트한 부동산 거래")
+st.sidebar.text("© 2024 부동산 AI 팀")
