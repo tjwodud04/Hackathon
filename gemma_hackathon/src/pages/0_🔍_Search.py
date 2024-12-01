@@ -5,11 +5,10 @@ import os
 import sys
 from pathlib import Path
 
-# 프로젝트 루트 디렉토리 설정
+# Set project root directory
 current_dir = Path(__file__).resolve().parent
 project_root = current_dir.parent.parent
 
-# 프로젝트 루트를 sys.path에 추가
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
@@ -18,82 +17,144 @@ from pandas_ai import run
 load_dotenv()
 
 # Streamlit configuration
-st.set_page_config(page_title="부동산 검색", layout="centered")
+st.set_page_config(page_title="Real Estate Search", layout="centered")
 
 # Available locations and predefined queries
-LOCATIONS = ["강남역", "서울역", "한강공원", "홍대입구역", "이태원역"]
+LOCATIONS = ["Gangnam Station", "Seoul Station", "Hangang Park", "Hongdae Station", "Itaewon Station"]
+LOCATION_MAPPING = {
+    "Gangnam Station": "강남역",
+    "Seoul Station": "서울역",
+    "Hangang Park": "한강공원",
+    "Hongdae Station": "홍대입구역",
+    "Itaewon Station": "이태원역"
+}
+
 PREDEFINED_QUERIES = {
-    "가격 관련": [
-        "3억 이하의 매물을 찾아줘",
-        "전세가율이 가장 높은 매물 3개는?",
-        "평당 가격이 가장 저렴한 매물은?"
+    "Price Related": [
+        "Find properties under 300 million won",
+        "What are the top 3 properties with lowest monthly rent?",
+        "Which property has the lowest price per square meter?"
     ],
-    "면적/구조 관련": [
-        "남향이면서 면적이 넓은 매물 추천",
-        "전용면적 20평 이상의 매물 목록",
-        "주차장이 있는 매물만 보여줘"
+    "Area/Structure Related": [
+        "Recommend properties facing south with large area",
+        "List properties with more than 66㎡ (20 pyeong)",
+        "Show only properties with parking spaces"
     ],
-    "건물 상태 관련": [
-        "2010년 이후 지어진 신축 건물만",
-        "리모델링이 완료된 매물 찾기",
-        "관리상태가 좋은 매물 추천"
+    "Building Condition": [
+        "Show buildings constructed after 2010",
+        "Find properties that have been renovated",
+        "Recommend properties in good maintenance condition"
     ]
 }
 
 
+def initialize_session_state():
+    if 'search_history' not in st.session_state:
+        st.session_state.search_history = []
+    if 'current_data' not in st.session_state:
+        st.session_state.current_data = None
+
+
 def main():
-    st.title(":office: 부동산 자연어 검색")
+    initialize_session_state()
 
-    # Location selector
-    selected_location = st.selectbox(
-        "검색할 위치를 선택하세요",
-        LOCATIONS
-    )
+    st.title(":office: Real Estate Natural Language Search")
 
-    # Query input method selection
-    query_method = st.radio(
-        "검색 방식을 선택하세요",
-        ["직접 입력", "미리 정의된 질문 선택"]
-    )
+    col1, col2 = st.columns([2, 1])
 
-    search_query = ""
-
-    if query_method == "직접 입력":
-        search_query = st.text_input(
-            "질문을 입력하세요",
-            placeholder="예: 남향이면서 면적이 넓은 아파트를 추천해줘"
+    with col1:
+        # Location selector
+        selected_location_eng = st.selectbox(
+            "Select Location",
+            LOCATIONS
         )
-    else:
-        # Category selection
-        category = st.selectbox(
-            "카테고리를 선택하세요",
-            list(PREDEFINED_QUERIES.keys())
+        selected_location = LOCATION_MAPPING[selected_location_eng]
+
+        # Query input method selection
+        query_method = st.radio(
+            "Choose Search Method",
+            ["Direct Input", "Predefined Questions"]
         )
 
-        # Query selection from category
-        if category:
-            search_query = st.selectbox(
-                "질문을 선택하세요",
-                PREDEFINED_QUERIES[category]
+        search_query = ""
+
+        if query_method == "Direct Input":
+            search_query = st.text_input(
+                "Enter your question",
+                placeholder="Example: Recommend properties facing south with large area"
+            )
+        else:
+            # Category selection
+            category = st.selectbox(
+                "Select Category",
+                list(PREDEFINED_QUERIES.keys())
             )
 
-    if st.button("검색") and search_query:
-        with st.spinner(f"{selected_location} 데이터 분석 중..."):
-            try:
-                # Add location context to the query
-                contextualized_query = f"{selected_location}의 {search_query}"
+            # Query selection from category
+            if category:
+                search_query = st.selectbox(
+                    "Select Question",
+                    PREDEFINED_QUERIES[category]
+                )
 
-                # Call the run function from pandas_ai
-                result = run(contextualized_query, "openai", location=selected_location)
+    with col2:
+        st.subheader("Search History")
+        if st.session_state.search_history:
+            for idx, (loc, query, time) in enumerate(st.session_state.search_history[-5:]):
+                st.text(f"{time}\n{loc}: {query}")
+        else:
+            st.text("No search history yet")
 
-                # Display the result
-                st.success("검색이 완료되었습니다.")
-                st.write("분석 결과:")
-                st.write(result)
+    if st.button("Search"):
+        if search_query:
+            with st.spinner(f"Analyzing data for {selected_location_eng}..."):
+                try:
+                    # Add location context to the query
+                    contextualized_query = f"For {selected_location_eng} ({selected_location}): {search_query}"
 
-            except Exception as e:
-                st.error(f"검색 중 오류가 발생했습니다: {str(e)}")
-                st.write("상세 에러:", e)
+                    # Call the run function from pandas_ai
+                    result = run(contextualized_query, "openai", location=selected_location)
+
+                    # Update search history
+                    from datetime import datetime
+                    st.session_state.search_history.append((
+                        selected_location_eng,
+                        search_query,
+                        datetime.now().strftime("%H:%M:%S")
+                    ))
+
+                    # Display the result
+                    st.success("Search completed")
+
+                    # Create result display container
+                    result_container = st.container()
+                    with result_container:
+                        st.write("### Analysis Results")
+                        st.write(result)
+
+                    # Add options for new search
+                    st.write("---")
+                    st.write("Would you like to:")
+                    col3, col4 = st.columns(2)
+                    with col3:
+                        if st.button("Start New Search"):
+                            st.experimental_rerun()
+                    with col4:
+                        if st.button("Modify Current Search"):
+                            st.session_state.current_data = result
+
+                except Exception as e:
+                    st.error(f"Search error occurred: {str(e)}")
+                    st.write("Detailed error:", e)
+
+    # Footer with instructions
+    st.markdown("---")
+    st.markdown("""
+    **Tips for searching:**
+    - Be specific about what you're looking for
+    - You can mention price ranges, area preferences, or building conditions
+    - Use the predefined questions for common queries
+    """)
 
 
 if __name__ == "__main__":
