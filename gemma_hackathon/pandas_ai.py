@@ -80,7 +80,7 @@ def run(input_query, model, location=None, data=None):
         df.columns = list(column_mapping.values())
 
         if model == "openai":
-            OPENAI_API_KEY = os.getenv("open_ai_api_key")
+            OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
             if not OPENAI_API_KEY:
                 raise ValueError("OpenAI API key not found")
 
